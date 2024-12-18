@@ -115,11 +115,7 @@ function [acc] = ClassifyERP(ERP1, ERP2)
 % ERP2 should have the same structure, and so cross-decoding is possible if
 % ERP1 and ERP2 are different data. Otherwise, ERP1 and ERP2 should be the
 % same data.
-% 
-% Apply slope finder to ERP1 and ERP2
-ERP1 = applySlope(ERP1, 1);
-ERP2 = applySlope(ERP2, 1);
-
+ 
 nFold = size(ERP1,1)/2;
 grouplabels = [ones(nFold,1); ones(nFold,1).*(-1)]; % changed from 1 & 2 but makes no difference
 nTimes = size(ERP1, 3);
@@ -137,44 +133,5 @@ for itime = 1:nTimes
         iAcc(icv) = sum(predictedlabels(:) == testlabel(:)) / length(predictedlabels);
     end
     acc(itime) = mean(iAcc);
-end
-end
-
-function [transformedERP] = applySlope(ERP, degree)
-% Apply slope finder transformation to reduce the second dimension
-% from 320 channels to 64 feature vectors by fitting a polynomial of
-% degree 'degree' and using its parameters as features.
-
-nObs = size(ERP, 1); % Number of observations (subjects)
-nChans = size(ERP, 2); % Number of channels
-nTime = size(ERP, 3); % Number of timepoints
-
-% Number of groups for downsampling the 320 channels
-groupSize = nChans / 64; % Assuming fixed reduction to 64
-numFeatures = degree + 1; % Number of polynomial coefficients for each fit
-
-% Initialize transformed ERP matrix
-transformedERP = zeros(nObs, 64 * numFeatures, nTime); % Extracting all coefficients
-
-for iObs = 1:nObs
-    for iTime = 1:nTime
-        featureVector = []; % Store features for this observation and timepoint
-        for iNewChan = 1:64
-            % Indices of channels in the current group
-            startIdx = (iNewChan - 1) * groupSize + 1;
-            endIdx = iNewChan * groupSize;
-            
-            % Data from the current group of channels
-            channelData = ERP(iObs, startIdx:endIdx, iTime);
-            
-            % Use polyfit to compute polynomial coefficients
-            x = 1:groupSize; % x-axis for channel indices
-            p = polyfit(x, channelData, degree); % Polynomial of degree 'degree'
-            
-            % Store all polynomial coefficients as features
-            featureVector = [featureVector, p]; % Concatenate the coefficients
-        end
-        transformedERP(iObs, :, iTime) = featureVector; % Store the feature vector
-    end
 end
 end
