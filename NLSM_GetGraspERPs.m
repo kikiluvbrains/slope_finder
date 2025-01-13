@@ -116,15 +116,15 @@ for iBlock = 1:nBlocks
     elseif blockType == 2
             count_ccw = count_ccw+1;
             fieldname = ['ob',num2str(condition)];
-            ccw.ob{condition}(count_ccw,:,:)= nanmean(EEG.data(:,:,conditionLogical),3);
+            ccw.fieldname(count_ccw,:,:)= nanmean(EEG.data(:,:,conditionLogical),3);
     elseif blockType == 3
             count_kna = count_kna+1;
             fieldname = ['ob',num2str(condition)];   
-            kna.ob{condition}(count_kna,:,:)= nanmean(EEG.data(:,:,conditionLogical),3);
+            kna.fieldname(count_kna,:,:)= nanmean(EEG.data(:,:,conditionLogical),3);
     elseif blockType == 4
             count_knb = count_knb+1;
             fieldname = ['ob',num2str(condition)];
-            kna.ob{condition}(count_knb,:,:)= nanmean(EEG.data(:,:,conditionLogical),3);
+            kna.fieldname(count_knb,:,:)= nanmean(EEG.data(:,:,conditionLogical),3);
     end
         end
 end
