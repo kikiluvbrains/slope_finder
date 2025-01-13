@@ -1,12 +1,14 @@
 %% This is the ERP function embedded above
 %function [cw, ccw, kna, knb, MyInfo] = NLSM_GetGraspERPs(partNum, nBlocks, eventalign, windsorize, normalize)
-partNum = 1;
+%partNum = 1;
 %can turn this into a loop once we have worked out all the details with the
 %behav files
 nBlocks =20;
 windsorize = 5
-normalize = True
+normalize = true
 selectedtrials = 6 %the number of trials you wish to use to create the erps
+
+for partNum = 1:10 %add as many as you have
 %% Description:
 % Get ERP from a participant, windsorize,
 % & normalize, then save them into a ERP file
@@ -19,10 +21,11 @@ selectedtrials = 6 %the number of trials you wish to use to create the erps
 %   4: Round; Wood
 % blocks
 %   1: CW;  2: CCW;  3: KnA (CW knuckling); 4: KnB (CCW knuckling);
+eeglab;
 
 partstrg = ['p',num2str(partNum)]
-datapath = ['/home/kinkini/Downloads/Neuroscience/leenina1/Experiments/SurfaceMaterials/',partstrg,'/postICA_seg/'];
-
+datapath = ['/home/kinkini/Downloads/Neuroscience/leenina1/Experiments/SurfaceMaterials/',partstrg,'/MoveOn/iclabel_Apr25/'];
+savepath = ['/home/kinkini/Downloads/Neuroscience/Matthias/Leenina/Data/',partstrg,'/']
 %% Paths & Variables
 %if eventalign == 1
 %    datapath = '/home/kinkini/Downloads/Neuroscience/leenina1/Experiments/SurfaceMaterials/',num2str(partNum),'/postICA_seg';
@@ -34,7 +37,7 @@ datapath = ['/home/kinkini/Downloads/Neuroscience/leenina1/Experiments/SurfaceMa
 
 %% Get some variables
 EEGpath = [datapath];
-load(['/psyhome10/leenina1/SurfaceMaterials/Data/',num2str(partNum),'/behavData.mat']);
+load(['/home/kinkini/Downloads/Neuroscience/leenina1/behavdatafiles/',['behavData', num2str(partNum)],'.mat']);
 MyInfo.RT = theData.RT; MyInfo.MT = theData.MT; MyInfo.blocks = theData.blocks;
 MyInfo.whichCond = theData.whichCond; MyInfo.badTrials = zeros(nBlocks,1);
 MyInfo.badTrials(isnan(MyInfo.badTrials))=0;
@@ -51,8 +54,15 @@ for iBlock = 1:nBlocks
     end
     %filename = ['b',num2str(iBlock),'.mat'];
     load([EEGpath, filename]);
-    MyInfo.badTrials(iBlock) = sum(isnan(Info.whichCond));
-    Info.whichCond(isnan(Info.whichCond)) = [];
+    MyInfo.badTrials = theData.badTrials(:,iBlock);
+    MyInfo.badTrials(isnan(MyInfo.badTrials))=0;
+    bad_trial_indices = find(MyInfo.badTrials);
+    % Remove entries where MyInfo.badTrials is 1
+    % Logical index for keeping only the good trials (0s in MyInfo.badTrials)
+    goodIndices = (MyInfo.badTrials == 0);
+    
+    % Filter MyInfo.whichCond to keep only the good trials
+    Info.whichCond = Info.whichCond(goodIndices,:);
 
     % Obtain grasp types
     blockType = MyInfo.blocks(iBlock);
@@ -74,46 +84,45 @@ for iBlock = 1:nBlocks
         clear allcov normdata alldata ndata;
         alldata = permute(EEG.data,[3 1 2]); %concatenate all observations
         
-        parfor i = 1:size(alldata,3)%parfor possible here
+        for i = 1:size(alldata,3)%parfor possible here
             allcov(:,:,i) = covCor(alldata(:,:,i)); % calculate covariance matrix at each time point
         end
         sig = mean(allcov,3); % average covariance matrix across time
         for i = 1:size(alldata,1)
-            parfor j = 1:size(alldata,3) %parfor possible here
+            for j = 1:size(alldata,3) %parfor possible here
                 idata = squeeze(alldata(i,:,j));
                 ndata(:,j) = idata * (sig^(-1/2)); % normalize ERP at each time point
             end
             normdata(i,:,:) = ndata;
         end
         EEG.data = permute(normdata,[2 3 1]);
-     
+
+        for condition = 1:4;
+
+        % Logical array for condition 1
+        conditionLogical = (Info.whichCond == condition);
+        
+        % Find the indices of trials where condition is 1
+        conditionIndices = find(conditionLogical);
+        
+        % Keep only the first three true values
+        conditionLogical(conditionIndices(selectedtrials+1:end)) = false;
+
     % Load into block-averaged variables (observations)
     if blockType == 1
             count_cw = count_cw+1;
-            cw.ob1(count_cw,:,:)= nanmean(EEG.data(:,:,(Info.whichCond==1),selectedtrials),3);
-            cw.ob2(count_cw,:,:) = nanmean(EEG.data(:,:,(Info.whichCond==2),selectedtrials),3);
-            cw.ob3(count_cw,:,:)= nanmean(EEG.data(:,:,(Info.whichCond==3),selectedtrials),3);
-            cw.ob4(count_cw,:,:) = nanmean(EEG.data(:,:,(Info.whichCond==4),selectedtrials),3);
+            cw.ob{condition}(count_cw,:,:)= nanmean(EEG.data(:,:,conditionLogical),3);
     elseif blockType == 2
             count_ccw = count_ccw+1;
-            ccw.ob1(count_ccw,:,:)= nanmean(EEG.data(:,:,(Info.whichCond==1),selectedtrials),3);
-            ccw.ob2(count_ccw,:,:) = nanmean(EEG.data(:,:,(Info.whichCond==2),selectedtrials),3);
-            ccw.ob3(count_ccw,:,:)= nanmean(EEG.data(:,:,(Info.whichCond==3),selectedtrials),3);
-            ccw.ob4(count_ccw,:,:) = nanmean(EEG.data(:,:,(Info.whichCond==4),selectedtrials),3);
+            ccw.ob1{condition}(count_ccw,:,:)= nanmean(EEG.data(:,:,conditionLogical),3);
     elseif blockType == 3
             count_kna = count_kna+1;
-            kna.ob1(count_kna,:,:)= nanmean(EEG.data(:,:,(Info.whichCond==1),selectedtrials),3);
-            kna.ob2(count_kna,:,:) = nanmean(EEG.data(:,:,(Info.whichCond==2),selectedtrials),3);
-            kna.ob3(count_kna,:,:)= nanmean(EEG.data(:,:,(Info.whichCond==3),selectedtrials),3);
-            kna.ob4(count_kna,:,:) = nanmean(EEG.data(:,:,(Info.whichCond==4),selectedtrials),3);
+            kna.ob1{condition}(count_kna,:,:)= nanmean(EEG.data(:,:,conditionLogical),3);
     elseif blockType == 4
             count_knb = count_knb+1;
-            knb.ob1(count_knb,:,:)= nanmean(EEG.data(:,:,(Info.whichCond==1),selectedtrials),3);
-            knb.ob2(count_knb,:,:) = nanmean(EEG.data(:,:,(Info.whichCond==2),selectedtrials),3);
-            knb.ob3(count_knb,:,:)= nanmean(EEG.data(:,:,(Info.whichCond==3),selectedtrials),3);
-            knb.ob4(count_knb,:,:) = nanmean(EEG.data(:,:,(Info.whichCond==4),selectedtrials),3);
+            kna.ob1{condition}(count_knb,:,:)= nanmean(EEG.data(:,:,conditionLogical),3);
     end
-
+        end
 end
 %% windsorize & normalize
 for iVar = 1:4
@@ -167,3 +176,4 @@ end
 save ERPs_mnn_Aug27.mat -mat cw ccw kna knb MyInfo
 
 %end
+end
