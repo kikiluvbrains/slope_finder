@@ -1,3 +1,5 @@
+clc
+clear
 %% This is the ERP function embedded above
 %function [cw, ccw, kna, knb, MyInfo] = NLSM_GetGraspERPs(partNum, nBlocks, eventalign, windsorize, normalize)
 %partNum = 1;
@@ -124,7 +126,7 @@ for iBlock = 1:nBlocks
     elseif blockType == 4
             count_knb = count_knb+1;
             fieldname = ['ob',num2str(condition)];
-            kna.fieldname(count_knb,:,:)= nanmean(EEG.data(:,:,conditionLogical),3);
+            knb.fieldname(count_knb,:,:)= nanmean(EEG.data(:,:,conditionLogical),3);
     end
         end
 end
@@ -174,8 +176,8 @@ try
     cd([savepath,num2str(partNum)]);
 catch
     cd(savepath);
-    mkdir(num2str(partNum));
-    cd(partNum);
+    mkdir(partstrg);
+    cd(partstrg);
 end
 save ERPs_mnn_Aug27.mat -mat cw ccw kna knb MyInfo
 
