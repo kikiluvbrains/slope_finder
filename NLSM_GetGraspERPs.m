@@ -5,6 +5,8 @@ clear
 %partNum = 1;
 %can turn this into a loop once we have worked out all the details with the
 %behav files
+addpath /home/kinkini/Downloads/Neuroscience/Matthias/Leenina/Scripts
+
 nBlocks =20;
 windsorize = 5
 normalize = true
@@ -26,8 +28,9 @@ for partNum = 1:10 %add as many as you have
 eeglab;
 
 partstrg = ['p',num2str(partNum)]
-datapath = ['/home/kinkini/Downloads/Neuroscience/leenina1/Experiments/SurfaceMaterials/',partstrg,'/MoveOn/iclabel_Apr25/'];
+datapath = ['/home/kinkini/Downloads/Neuroscience/leenina1/Experiments/SurfaceMaterials/',partstrg,'/MoveOn/iclabel_RTto1s/'];
 savepath = ['/home/kinkini/Downloads/Neuroscience/Matthias/Leenina/Data/',partstrg,'/']
+
 %% Paths & Variables
 %if eventalign == 1
 %    datapath = '/home/kinkini/Downloads/Neuroscience/leenina1/Experiments/SurfaceMaterials/',num2str(partNum),'/postICA_seg';
@@ -179,7 +182,7 @@ catch
     mkdir(partstrg);
     cd(partstrg);
 end
-save ERPs_mnn_Aug27.mat -mat cw ccw kna knb MyInfo
+save ERPs_mnn_Aug27_modded.mat -mat cw ccw kna knb MyInfo
 
 %end
 end
