@@ -49,7 +49,8 @@ MyInfo.badTrials(isnan(MyInfo.badTrials))=0;
 
 
 %% Loop through files
-count_cw = 0; count_ccw = 0; count_kna = 0; count_knb = 0;
+count_cw = 1; count_ccw = 1; count_kna = 1; count_knb = 1;
+
 
 for iBlock = 1:nBlocks
     if iBlock < 13
@@ -102,36 +103,32 @@ for iBlock = 1:nBlocks
         end
         EEG.data = permute(normdata,[2 3 1]);
 
-        for condition = 1:4;
-
-        % Logical array for condition 1
-        conditionLogical = (Info.whichCond == condition);
-        
-        % Find the indices of trials where condition is 1
-        conditionIndices = find(conditionLogical);
-        
-        % Keep only the first three true values
-        conditionLogical(conditionIndices(selectedtrials+1:end)) = false;
-
-    % Load into block-averaged variables (observations)
-    if blockType == 1
-            count_cw = count_cw+1;
-            fieldname = ['ob',num2str(condition)];
-            cw.fieldname(count_cw,:,:)= nanmean(EEG.data(:,:,conditionLogical),3);
-    elseif blockType == 2
-            count_ccw = count_ccw+1;
-            fieldname = ['ob',num2str(condition)];
-            ccw.fieldname(count_ccw,:,:)= nanmean(EEG.data(:,:,conditionLogical),3);
-    elseif blockType == 3
-            count_kna = count_kna+1;
-            fieldname = ['ob',num2str(condition)];   
-            kna.fieldname(count_kna,:,:)= nanmean(EEG.data(:,:,conditionLogical),3);
-    elseif blockType == 4
-            count_knb = count_knb+1;
-            fieldname = ['ob',num2str(condition)];
-            knb.fieldname(count_knb,:,:)= nanmean(EEG.data(:,:,conditionLogical),3);
-    end
+    for condition = 1:4;
+            conditionLogical = (Info.whichCond == condition);
+            conditionIndices = find(conditionLogical);
+            conditionLogical(conditionIndices(selectedtrials+1:end)) = false;
+    
+            fieldname = ['ob', num2str(condition)]; 
+            dataToProcess = EEG.data(:, :, conditionLogical); 
+            if blockType == 1
+                cw.(fieldname)(count_cw, :, :) = nanmean(dataToProcess, 3);
+            elseif blockType == 2
+                ccw.(fieldname)(count_ccw, :, :) = nanmean(dataToProcess, 3);
+            elseif blockType == 3
+                kna.(fieldname)(count_kna, :, :) = nanmean(dataToProcess, 3);
+            elseif blockType == 4
+                knb.(fieldname)(count_knb, :, :) = nanmean(dataToProcess, 3);
+            end
         end
+        if blockType == 1
+            count_cw = count_cw + 1;
+        elseif blockType == 2
+            count_ccw = count_ccw + 1;
+        elseif blockType == 3
+            count_kna = count_kna + 1;
+        elseif blockType == 4
+            count_knb = count_knb + 1;
+        end  
 end
 %% windsorize & normalize
 for iVar = 1:4
