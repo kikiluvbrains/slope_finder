@@ -60,15 +60,8 @@ for iBlock = 1:nBlocks
     end
     %filename = ['b',num2str(iBlock),'.mat'];
     load([EEGpath, filename]);
-    MyInfo.badTrials = theData.badTrials(:,iBlock);
-    MyInfo.badTrials(isnan(MyInfo.badTrials))=0;
-    bad_trial_indices = find(MyInfo.badTrials);
-    % Remove entries where MyInfo.badTrials is 1
-    % Logical index for keeping only the good trials (0s in MyInfo.badTrials)
-    goodIndices = (MyInfo.badTrials == 0);
-    
-    % Filter MyInfo.whichCond to keep only the good trials
-    Info.whichCond = Info.whichCond(goodIndices,:);
+    MyInfo.badTrials(iBlock) = sum(isnan(Info.whichCond));
+    Info.whichCond(isnan(Info.whichCond)) = [];
 
     % Obtain grasp types
     blockType = MyInfo.blocks(iBlock);
@@ -85,6 +78,7 @@ for iBlock = 1:nBlocks
     if nEpochs ~= length(Info.whichCond)
 		disp(['Trial Number mismatch at block number ', num2str(iBlock), '. Subject Number ', partNum]);
     end
+ 
  
     % perform mnn
         clear allcov normdata alldata ndata;
@@ -179,7 +173,7 @@ catch
     mkdir(partstrg);
     cd(partstrg);
 end
-save ERPs_mnn_Aug27_modded.mat -mat cw ccw kna knb MyInfo
+save ERPs_mnn_Aug27_6trials.mat -mat cw ccw kna knb MyInfo
 
 %end
 end
