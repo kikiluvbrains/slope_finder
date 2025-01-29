@@ -93,6 +93,9 @@ for iSub = 1:length(subjects)
         accurate.Grasp.Colour(iSub,:) = ClassifyERP(grasp_colour_data, grasp_colour_data);
         accurate.Knuckle.Colour(iSub,:) = ClassifyERP(knuckle_colour_data, knuckle_colour_data);
 
+        accurate.Grasp.Orientation(iSub,:) = ClassifyERP(grasp_orientation_data, grasp_orientation_data);
+        accurate.Knuckle.Orientation(iSub,:) = ClassifyERP(kuckle_orientation_data, kuckle_orientation_data);
+
         toc        
         %% save results
         if eventalign == 1
