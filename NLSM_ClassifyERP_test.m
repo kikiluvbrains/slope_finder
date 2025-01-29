@@ -86,12 +86,21 @@ for iSub = 1:length(subjects)
         grasp_colour_data = cat(1, cw.ob1, cw.ob3, ccw.ob1, ccw.ob3, cw.ob2, cw.ob4, ccw.ob2, ccw.ob4);
         knuckle_colour_data = cat(1, kna.ob1, kna.ob3, knb.ob1, knb.ob3, kna.ob2, kna.ob4, knb.ob2, knb.ob4);
         
+        grasp_colour_data = cat(1, cw.ob1, cw.ob3, ccw.ob1, ccw.ob3, cw.ob2, cw.ob4, ccw.ob2, ccw.ob4);
+        knuckle_colour_data = cat(1, kna.ob1, kna.ob3, knb.ob1, knb.ob3, kna.ob2, kna.ob4, knb.ob2, knb.ob4);
+        
+        grasp_orientation_data = (cat(1,cw.ob1,cw.ob2, ccw.ob3, ccw.ob4, cw.ob1, cw.ob2, ccw.ob3, ccw.ob4);
+        kuckle_orientation_data = (cat(1,kna.ob1,kna.ob2, kna.ob3, kna.ob4, knb.ob1, knb.ob2, knb.ob3, knb.ob4);
+                
         % Classify and store results
         accurate.Grasp.Shape(iSub,:) = ClassifyERP(grasp_shape_data, grasp_shape_data);
         accurate.Knuckle.Shape(iSub,:) = ClassifyERP(knuckle_shape_data, knuckle_shape_data);
         
         accurate.Grasp.Colour(iSub,:) = ClassifyERP(grasp_colour_data, grasp_colour_data);
         accurate.Knuckle.Colour(iSub,:) = ClassifyERP(knuckle_colour_data, knuckle_colour_data);
+
+        accurate.Grasp.Orientation(iSub,:) = ClassifyERP(grasp_orientation_data, grasp_orientation_data);
+        accurate.Knuckle.Orientation(iSub,:) = ClassifyERP(kuckle_orientation_data, kuckle_orientation_data);
 
         toc        
         %% save results
