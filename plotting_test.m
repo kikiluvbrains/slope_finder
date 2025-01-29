@@ -34,6 +34,16 @@ timesSig_KnuckleColour = (times(logical(hknucklescolour)));
 [hgraspsvskncolour, ~, ~] = perm_1dcluster_onesample_NH_paired_new(accurate.Grasp.Colour,accurate.Knuckle.Colour,pthresh,nperms,tailtest); %hShape(hShape==0) = NaN;
 timesSig_GraspsvsKnColour = (times(logical(hgraspsvskncolour)));
 
+%% Orientation Significant Test
+[hgraspsorientation, ~, ~] = perm_1dcluster_onesample((accurate.Grasp.Orientation)-.5,pthresh,nperms, tailtest); %hShape(hShape==0) = NaN;
+timesSig_GraspsColour = (times(logical(hgraspsorientation)));
+
+[hknucklesorientation, ~, ~] = perm_1dcluster_onesample((accurate.Knuckle.Orientation)-.5,pthresh,nperms, tailtest); %hShape(hShape==0) = NaN;
+timesSig_KnuckleColour = (times(logical(hknucklesorientation)));
+
+[hgraspsvsknorientation, ~, ~] = perm_1dcluster_onesample_NH_paired_new(accurate.Grasp.Colour,accurate.Knuckle.Colour,pthresh,nperms,tailtest); %hShape(hShape==0) = NaN;
+timesSig_GraspsvsKnOrientation = (times(logical(hgraspsvsknorientation)));
+
 %% Plot Figure: Shape
 figure(); hold on; set(gcf, 'color', 'w');
 title('Shape Classification Grasp v Knuckle');
@@ -96,15 +106,51 @@ h.mainLine.LineWidth = 1.5;
 h.mainLine.Color = clr2;
 h.patch.FaceColor = clr2;
 h.patch.FaceAlpha = 0.3;
-scatter2=scatter(times,hgraspsshape*0.72,40,'s','filled','markerfacecolor',clr,'markeredgecolor', 'none' );
-hknucklesshape(hknucklesshape==0) = NaN;
-scatter3=scatter(times,hknucklesshape*0.7,40,'s','filled','markerfacecolor',clr2,'markeredgecolor', 'none' );
+scatter2=scatter(times,hgraspscolour*0.72,40,'s','filled','markerfacecolor',clr,'markeredgecolor', 'none' );
+hknucklescolour(hknucklescolour==0) = NaN;
+scatter3=scatter(times,hknucklescolour*0.7,40,'s','filled','markerfacecolor',clr2,'markeredgecolor', 'none' );
 scatter1.MarkerFaceAlpha = .8;
 scatter2.MarkerFaceAlpha = .8;
 scatter3.MarkerFaceAlpha = .8;
 plot(times, ones(length(times))*.5,'k--','LineWidth',0.3,'MarkerSize',5); % baseline
 startline = line([0 0],[axlimit(3:4)],'color',[0.7 0.7 0.7],'LineWidth', 1);
 
+
+%% Plot Figure: Orientation
+figure(); hold on; set(gcf, 'color', 'w');
+title('Orientation Classification Grasp v Knuckle');
+numbins = size(times,2);
+data = accurate.Grasp.Orientation(subs,:);%grasp classification
+data2 = accurate.Knuckle.Orientation(subs,:);%knuckle classification
+clr = [0 0.4 0]; %dark green
+clr2 = [0.6 1 0]; %light green
+hbar_height = 0.45;
+set(findobj(gcf,'type','axes'),'FontSize',12,'FontWeight','Bold','LineWidth',0.5);
+%axlimit = [-100 500 0.4 .7];
+axlimit = [-100 500 0.1 .9];
+axis(axlimit);
+meandata = mean(data);
+semdata = std(data)/sqrt(size(data,1));
+h = shadedErrorBar(times, meandata, semdata);
+h.mainLine.LineWidth = 1.5;
+h.mainLine.Color = clr;
+h.patch.FaceColor = clr;
+h.patch.FaceAlpha = 0.3; hold on;
+meandata2 = mean(data2);
+semdata2 = std(data2)/sqrt(size(data2,1));
+h = shadedErrorBar(times, meandata2, semdata2, 'k');
+h.mainLine.LineWidth = 1.5;
+h.mainLine.Color = clr2;
+h.patch.FaceColor = clr2;
+h.patch.FaceAlpha = 0.3;
+scatter2=scatter(times,hgraspsorientation*0.72,40,'s','filled','markerfacecolor',clr,'markeredgecolor', 'none' );
+hknucklesorientation(hknucklesorientation==0) = NaN;
+scatter3=scatter(times,hknucklesorientation*0.7,40,'s','filled','markerfacecolor',clr2,'markeredgecolor', 'none' );
+scatter1.MarkerFaceAlpha = .8;
+scatter2.MarkerFaceAlpha = .8;
+scatter3.MarkerFaceAlpha = .8;
+plot(times, ones(length(times))*.5,'k--','LineWidth',0.3,'MarkerSize',5); % baseline
+startline = line([0 0],[axlimit(3:4)],'color',[0.7 0.7 0.7],'LineWidth', 1);
 
 % These are the cluster-based stats functions
 %% Description h = perm_cluster_onesample(data,thresh,nperms)
