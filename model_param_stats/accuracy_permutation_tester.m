@@ -1,4 +1,4 @@
-function plotShadedErrorWithLegend(path, file_1, file_2, name_1, name_2, Class, Object_property, win)
+function accuracy_permutation_tester(path, file_1, file_2, name_1, name_2, Class, Object_property, win)
     % Function to perform a two-tailed paired one sample permutation test based on
     % Lawerences original functions
     % cubes in red shows areas of signficance
@@ -25,15 +25,15 @@ function plotShadedErrorWithLegend(path, file_1, file_2, name_1, name_2, Class, 
     %   Object_property = 'Shape'
     %   win = 5 %change time concat window
     
-    load([path, file_1])
-    accurate_1 = accurate
-    My_info_1 = MyInfo
+    data_1 = load([path, file_1])
+    accurate_1 = data_1.accurate
+    My_info_1 = data_1.MyInfo
     times_1 = My_info_1.timepoints(1:win:end-2); % to accomodate concatenated 5 consecutive timepoints during classification; there's currently 61 tps
     clear accurate MyInfo
     
-    load([path, file_2])
-    accurate_2 = accurate
-    My_info_2 = MyInfo
+    data_2 = load([path, file_2])
+    accurate_2 = data_2.accurate
+    My_info_2 = data_2.MyInfo
     times_2 = My_info_2.timepoints(1:win:end-2); % to accomodate concatenated 5 consecutive timepoints during classification; there's currently 61 tps
     clear accurate MyInfo
     
@@ -65,7 +65,7 @@ function plotShadedErrorWithLegend(path, file_1, file_2, name_1, name_2, Class, 
     
     %% Plot Figure: Shape
     figure(); hold on; set(gcf, 'color', 'w');
-    title('Shape Classification Grasp v Knuckle');
+    title( Class + " Classification for Object " + Object_property);
     numbins = size(times_1,2);
     data = accurate_1.(Class).(Object_property)(subs,:);%data 1 classification
     data2 = accurate_2.(Class).(Object_property)(subs,:);%data 2 classification
